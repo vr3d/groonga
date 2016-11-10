@@ -3166,6 +3166,9 @@ show_usage(FILE *output)
           "      --default-match-escalation-threshold <threshold>:\n"
           "                       specify default match escalation threshold"
           " (default: %" GRN_FMT_LLD ")\n"
+          "      --cache-path <path>:\n"
+          "                       specify cache path for persistent cache\n"
+          "                       (none)\n"
           "\n"
           "      --show-config:   show config\n"
           "  -h, --help:          show usage\n"
@@ -3210,6 +3213,7 @@ main(int argc, char **argv)
   const char *working_directory_arg = NULL;
   const char *config_path = NULL;
   const char *default_request_timeout_arg = NULL;
+  const char *cache_path = NULL;
   int exit_code = EXIT_SUCCESS;
   int i;
   int flags = 0;
@@ -3251,6 +3255,7 @@ main(int argc, char **argv)
      FLAG_USE_WINDOWS_EVENT_LOG, GETOPT_OP_ON},
     {'\0', "memcached-column", NULL, 0, GETOPT_OP_NONE},
     {'\0', "default-request-timeout", NULL, 0, GETOPT_OP_NONE},
+    {'\0', "cache-path", NULL, 0, GETOPT_OP_NONE},
     {'\0', NULL, NULL, 0, 0}
   };
   opts[0].arg = &port_arg;
@@ -3276,6 +3281,7 @@ main(int argc, char **argv)
   opts[27].arg = &working_directory_arg;
   opts[29].arg = &memcached_column_name;
   opts[30].arg = &default_request_timeout_arg;
+  opts[31].arg = &cache_path;
 
   reset_ready_notify_pipe();
 
@@ -3632,6 +3638,10 @@ main(int argc, char **argv)
     default_request_timeout = value;
   } else {
     default_request_timeout = default_default_request_timeout;
+  }
+
+  if (cache_path) {
+    grn_set_default_cache_path(cache_path);
   }
 
   grn_gctx.errbuf[0] = '\0';

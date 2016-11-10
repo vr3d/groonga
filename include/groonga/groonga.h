@@ -278,7 +278,12 @@ GRN_API grn_rc grn_set_lock_timeout(int timeout);
 #define GRN_CACHE_DEFAULT_MAX_N_ENTRIES 100
 typedef struct _grn_cache grn_cache;
 
+GRN_API void grn_set_default_cache_path(const char *path);
+GRN_API const char *grn_get_default_cache_path(void);
+
 GRN_API grn_cache *grn_cache_open(grn_ctx *ctx);
+GRN_API grn_cache *grn_cache_open_persistent(grn_ctx *ctx,
+                                             const char *path);
 GRN_API grn_rc grn_cache_close(grn_ctx *ctx, grn_cache *cache);
 
 GRN_API grn_rc grn_cache_current_set(grn_ctx *ctx, grn_cache *cache);
