@@ -4379,6 +4379,7 @@ is_index_searchable_regexp(grn_ctx *ctx, grn_obj *regexp)
   const char *regexp_raw;
   const char *regexp_raw_end;
   grn_bool escaping = GRN_FALSE;
+  grn_bool dot = GRN_FALSE;
 
   if (!(regexp->header.domain == GRN_DB_SHORT_TEXT ||
         regexp->header.domain == GRN_DB_TEXT ||
@@ -4432,12 +4433,24 @@ is_index_searchable_regexp(grn_ctx *ctx, grn_obj *regexp)
       } else {
         switch (regexp_raw[0]) {
         case '.' :
+          escaping = GRN_FALSE;
+          if (dot) {
+            return GRN_FALSE;
+          }
+          dot = GRN_TRUE;
+          break;
+        case '*' :
+          escaping = GRN_FALSE;
+          if (!dot) {
+            return GRN_FALSE;
+          }
+          dot = GRN_FALSE;
+          break;
         case '[' :
         case ']' :
         case '|' :
         case '?' :
         case '+' :
-        case '*' :
         case '{' :
         case '}' :
         case '^' :
@@ -4447,9 +4460,15 @@ is_index_searchable_regexp(grn_ctx *ctx, grn_obj *regexp)
           escaping = GRN_FALSE;
           return GRN_FALSE;
         case '\\' :
+          if (dot) {
+            return GRN_FALSE;
+          }
           escaping = GRN_TRUE;
           break;
         default :
+          if (dot) {
+            return GRN_FALSE;
+          }
           escaping = GRN_FALSE;
           break;
         }
